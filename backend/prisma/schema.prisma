@@ -1,0 +1,232 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ─── USERS ────────────────────────────────────────────────────
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  passwordHash   String
+  name           String
+  role           String    @default("STUDENT")
+  isVerified     Boolean   @default(false)
+  isActive       Boolean   @default(true)
+  profileImage   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  studentProfile  StudentProfile?
+  seniorProfile   SeniorProfile?
+  adminProfile    AdminProfile?
+  posts           Post[]
+  comments        Comment[]
+  notifications   Notification[]
+  careerReports   CareerReport[]
+  auditLogs       AuditLog[]     @relation("ActionBy")
+}
+
+model StudentProfile {
+  id         String  @id @default(cuid())
+  userId     String  @unique
+  course     String
+  semester   Int
+  branch     String
+  rollNumber String?
+  gpa        Float?
+  user       User    @relation(fields: [userId], references: [id])
+}
+
+model SeniorProfile {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  course          String
+  graduationYear  Int
+  currentCompany  String?
+  linkedin        String?
+  isApproved      Boolean @default(false)
+  user            User    @relation(fields: [userId], references: [id])
+}
+
+model AdminProfile {
+  id          String  @id @default(cuid())
+  userId      String  @unique
+  adminUniqueId String @unique
+  user        User    @relation(fields: [userId], references: [id])
+}
+
+// ─── TIMETABLES ────────────────────────────────────────────────
+model Timetable {
+  id        String    @id @default(cuid())
+  course    String
+  semester  Int
+  branch    String
+  pdfUrl    String
+  data      String    // Stringified JSON
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  uploadedById String
+}
+
+// ─── EXAMS ─────────────────────────────────────────────────────
+model Exam {
+  id          String   @id @default(cuid())
+  title       String
+  course      String
+  semester    Int
+  date        DateTime
+  time        String
+  venue       String?
+  type        String
+  pdfUrl      String?
+  createdAt   DateTime @default(now())
+}
+
+// ─── SYLLABUS ──────────────────────────────────────────────────
+model Syllabus {
+  id          String   @id @default(cuid())
+  subject     String
+  course      String
+  semester    Int
+  pdfUrl      String
+  uploadedAt  DateTime @default(now())
+}
+
+// ─── NOTES ─────────────────────────────────────────────────────
+model Note {
+  id           String      @id @default(cuid())
+  title        String
+  subject      String
+  course       String
+  semester     Int
+  fileUrl      String
+  fileType     String
+  uploadedById String
+  isApproved   Boolean     @default(false)
+  downloads    Int         @default(0)
+  createdAt    DateTime    @default(now())
+}
+
+// ─── EVENTS ────────────────────────────────────────────────────
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  startDate   DateTime
+  endDate     DateTime?
+  venue       String?
+  posterUrl   String?
+  brochureUrl String?
+  registrationLink String?
+  createdAt   DateTime @default(now())
+}
+
+// ─── KNOWLEDGE HUB POSTS ──────────────────────────────────────
+model Post {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  authorId    String
+  tags        String    // CSV string
+  fileUrls    String    // CSV string
+  likes       Int       @default(0)
+  isApproved  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  author      User      @relation(fields: [authorId], references: [id])
+  comments    Comment[]
+}
+
+// ─── COMMENTS ─────────────────────────────────────────────────
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  postId    String
+  authorId  String
+  createdAt DateTime @default(now())
+
+  post      Post     @relation(fields: [postId], references: [id])
+  author    User     @relation(fields: [authorId], references: [id])
+}
+
+// ─── SCHOLARSHIPS ──────────────────────────────────────────────
+model Scholarship {
+  id          String   @id @default(cuid())
+  title       String
+  provider    String
+  type        String
+  amount      String
+  deadline    DateTime
+  eligibility String
+  applyLink   String?
+  formUrl     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// ─── CAREER REPORTS ───────────────────────────────────────────
+model CareerReport {
+  id              String   @id @default(cuid())
+  userId          String
+  skills          String   // CSV string
+  codingLevel     String
+  interests       String   // CSV string
+  degree          String
+  certificates    String   // CSV string
+  communication   String
+  aiResult        String   // Stringified JSON
+  createdAt       DateTime @default(now())
+
+  user            User     @relation(fields: [userId], references: [id])
+}
+
+// ─── NOTIFICATIONS ─────────────────────────────────────────────
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+// ─── CHATBOT KNOWLEDGE BASE ───────────────────────────────────
+model ChatbotKB {
+  id       String @id @default(cuid())
+  category String
+  question String
+  answer   String
+  metadata String? // Stringified JSON
+  updatedAt DateTime @updatedAt
+}
+
+// ─── AUDIT LOGS (Admin Security) ──────────────────────────────
+model AuditLog {
+  id         String   @id @default(cuid())
+  actionById String
+  action     String
+  entity     String
+  entityId   String?
+  metadata   String?  // Stringified JSON
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actionBy   User     @relation("ActionBy", fields: [actionById], references: [id])
+}
+
+// ─── OTP ──────────────────────────────────────────────────────
+model OTP {
+  id        String   @id @default(cuid())
+  email     String
+  code      String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+}

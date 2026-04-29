@@ -1,0 +1,1 @@
+export default function Page() { return <div className='p-8'><h1 className='text-2xl font-bold capitalize'>downloads</h1><p className='text-light-muted mt-2'>This module is under development.</p></div>; }

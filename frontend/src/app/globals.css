@@ -1,0 +1,71 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-heading: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --bg: #f8fafc;
+  --text: #0f172a;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --dark-bg: #e2e8f0;
+  --input-text: #0f172a;
+}
+
+.dark {
+  --bg: #0f172a;
+  --text: #f8fafc;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --dark-bg: #1e293b;
+  --input-text: #ffffff;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+.bg-dark { background-color: var(--bg) !important; }
+.bg-dark-card { background-color: var(--dark-bg) !important; }
+.text-white { color: var(--text) !important; }
+.text-light-muted { color: #64748b !important; }
+.dark .text-light-muted { color: #94a3b8 !important; }
+
+input {
+  color: var(--input-text) !important;
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #4F46E5, #7C3AED, #06B6D4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glow effect on hover */
+.glow-hover:hover {
+  box-shadow: 0 0 25px rgba(79, 70, 229, 0.4);
+  transition: box-shadow 0.3s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: #4F46E5; border-radius: 3px; }
